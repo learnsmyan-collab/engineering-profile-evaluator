@@ -1,0 +1,46 @@
+"""
+Project: Supply Chain Inventory Manager
+Author: Smyan Aggarwal
+Description: A basic simulation of an inventory system that flags items 
+             needing restock based on a minimum threshold.
+"""
+
+def check_stock_levels(inventory_data, threshold):
+    """
+    Analyzes current stock levels and identifies items below the reorder point.
+    """
+    print(f"\n--- Checking Inventory (Threshold: {threshold} units) ---")
+    
+    needs_restock = {}
+    
+    for item, quantity in inventory_data.items():
+        if quantity <= threshold:
+            needs_restock[item] = quantity
+            print(f"ALERT: {item} is low ({quantity} units left).")
+    
+    return needs_restock
+
+def main():
+    # Representing a small warehouse using a dictionary
+    # In a real system, this might be a CSV file or an SQL database.
+    warehouse_stock = {
+        "Steel_Beams": 50,
+        "Bolts_Pack": 10,
+        "Circuit_Boards": 5,
+        "Hydraulic_Fluid": 100
+    }
+    
+    reorder_threshold = 100
+    
+    print("Supply Chain Inventory Management System")
+    
+    # Run the audit
+    low_stock_items = check_stock_levels(warehouse_stock, reorder_threshold)
+    
+    if not low_stock_items:
+        print("Status: All inventory levels are optimal.")
+    else:
+        print(f"\nAction Required: Please initiate procurement for {len(low_stock_items)} items.")
+
+if __name__ == "__main__":
+    main()
