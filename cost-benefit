@@ -1,0 +1,62 @@
+"""
+Project: Engineering Cost-Benefit Analysis Tool
+Author: Smyan Aggarwal
+Date: 2026-07-13
+Description: A simple utility to calculate ROI and assess financial feasibility 
+             for small-scale engineering projects. 
+"""
+
+def calculate_project_roi(initial_capex, annual_savings, project_lifespan):
+    """
+    Calculates the Return on Investment (ROI) percentage.
+    
+    Args:
+        initial_capex (float): The initial capital expenditure (investment).
+        annual_savings (float): Yearly operational savings from the improvement.
+        project_lifespan (int): Expected duration of the project in years.
+        
+    Returns:
+        float: ROI percentage.
+    """
+    if initial_cost <= 0:
+        return 0.0
+    
+    total_returns = annual_savings * project_lifespan
+    roi = ((total_returns - initial_cost) / initial_cost) * 100
+    return roi
+
+def main():
+    print("--- Engineering Project Feasibility Evaluator ---")
+    
+    # Using a try-except block to handle user input errors gracefully.
+    # Good practice for keeping the program from crashing.
+    try:
+        # Renaming variables to 'capex' (Capital Expenditure) to sound 
+        # more like a professional engineering/business context.
+        capex = float(input("Enter initial capital expenditure ($): "))
+        annual_savings = float(input("Enter expected annual savings ($): "))
+        lifespan = int(input("Enter projected project lifespan (years): "))
+        
+        # Calling the calculation function
+        roi_percentage = calculate_project_roi(capex, annual_savings, lifespan)
+        
+        # Calculate net profit for a more complete business view
+        net_profit = (annual_savings * lifespan) - capex
+        
+        print("\n--- Summary Analysis ---")
+        print(f"Total Projected Savings: ${ (annual_savings * lifespan):,.2f}")
+        print(f"Net Project Profit:      ${net_profit:,.2f}")
+        print(f"Return on Investment:     {roi_percentage:.2f}%")
+        
+        # Threshold logic: Often used in engineering management to decide 
+        # if a project is worth the risk.
+        if roi_percentage >= 20.0:
+            print("Status: Viable - Exceeds 20% ROI threshold.")
+        else:
+            print("Status: Caution - ROI below target. Review variable costs.")
+            
+    except ValueError:
+        print("Input Error: Please ensure you enter valid numerical data.")
+
+if __name__ == "__main__":
+    main()
