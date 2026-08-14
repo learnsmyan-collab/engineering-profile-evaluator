@@ -1,8 +1,9 @@
 # Engineering Profile Evaluator
 
-Hey there! Welcome to the **Engineering Profile Evaluator**. This project is all about building a solid framework to assess engineering profiles, crunch numbers for cost-benefit analysis, and look at supply chain workflows. 
+Hi there! Welcome to the Engineering Profile Evaluator. The idea of this project is to establish a framework within which engineering profiles can be assessed, a cost-benefit model calculated, and supply chains evaluated for their operational efficacy and economic viability. 
 
-If you're trying to figure out how to evaluate technical capabilities alongside the bottom line and operational logistics, you're in the right place.
+
+If you're looking to understand how to perform a technical assessment on the grounds of both the bottom-line performance and the logistics of the process, then you've come to the right place.
 
 ---
 
