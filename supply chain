@@ -1,46 +1,71 @@
 """
-Project: Supply Chain Inventory Manager
+Project: Warehouse Inventory & Safety Stock Auditor
 Author: Smyan Aggarwal
-Description: A basic simulation of an inventory system that flags items 
-             needing restock based on a minimum threshold.
+Notes: Quick script to parse stock levels, catch items dropping 
+       below safety thresholds, and output a clean bar chart for the report.
 """
 
-def check_stock_levels(inventory_data, threshold):
-    """
-    Analyzes current stock levels and identifies items below the reorder point.
-    """
-    print(f"\n--- Checking Inventory (Threshold: {threshold} units) ---")
-    
-    needs_restock = {}
-    
-    for item, quantity in inventory_data.items():
-        if quantity <= threshold:
-            needs_restock[item] = quantity
-            print(f"ALERT: {item} is low ({quantity} units left).")
-    
-    return needs_restock
+import matplotlib.pyplot as plt
+
+class StockAuditor:
+    def __init__(self, inventory: dict, threshold: int = 20):
+        self.inventory = inventory
+        self.threshold = threshold
+
+    def get_shortages(self) -> dict:
+        # filter out anything sitting at or below our minimum safety line
+        shortages = {}
+        for part, count in self.inventory.items():
+            if count <= self.threshold:
+                shortages[part] = count
+        return shortages
+
+    def save_stock_plot(self, filename: str = "inventory_status.png") -> None:
+        parts = list(self.inventory.keys())
+        counts = list(self.inventory.values())
+        
+        # highlight low stock in red, normal stock in blue
+        bar_colors = ['#d9534f' if c <= self.threshold else '#337ab7' for c in counts]
+
+        plt.figure(figsize=(7, 4))
+        plt.bar(parts, counts, color=bar_colors, width=0.55)
+        
+        plt.axhline(self.threshold, color='#f0ad4e', linestyle='--', linewidth=1.5, label=f'Min Threshold ({self.threshold})')
+        
+        plt.title('Stock Levels vs. Safety Threshold', fontsize=10, fontweight='bold')
+        plt.xlabel('Component', fontsize=9)
+        plt.ylabel('Units on Hand', fontsize=9)
+        plt.xticks(rotation=15, fontsize=8)
+        plt.grid(axis='y', linestyle=':', alpha=0.6)
+        plt.legend(loc='upper right', fontsize=8)
+        plt.tight_layout()
+        
+        plt.savefig(filename, dpi=300)
+        plt.close()
 
 def main():
-    # Representing a small warehouse using a dictionary
-    # In a real system, this might be a CSV file or an SQL database.
-    warehouse_stock = {
-        "Steel_Beams": 15,
-        "Bolts_Pack": 15,
-        "Circuit_Boards": 15,
-        "Hydraulic_Fluid": 15
+    print("Running inventory audit check...")
+    
+    # mock hardware store / fab shop inventory state
+    stock_data = {
+        "Steel_Beams": 45,
+        "Bolts_Pack": 14,       # low
+        "Circuit_Boards": 9,    # low
+        "Hydraulic_Fluid": 80,
+        "Valves": 18            # low
     }
     
-    reorder_threshold = 100
+    min_limit = 20
     
-    print("Supply Chain Inventory Management System")
+    auditor = StockAuditor(stock_data, min_limit)
+    flagged = auditor.get_shortages()
     
-    # Run the audit
-    low_stock_items = check_stock_levels(warehouse_stock, reorder_threshold)
-    
-    if not low_stock_items:
-        print("Status: All inventory levels are optimal.")
-    else:
-        print(f"\nAction Required: Please initiate procurement for {len(low_stock_items)} items.")
+    print(f"\n--- Audit Complete ---")
+    print(f"Items checked: {len(stock_data)}")
+    print(f"Restock required for: {list(flagged.keys())}")
+
+    auditor.save_stock_plot()
+    print("Saved 'inventory_status.png' successfully.")
 
 if __name__ == "__main__":
     main()
