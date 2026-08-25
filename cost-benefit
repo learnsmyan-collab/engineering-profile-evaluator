@@ -1,62 +1,75 @@
 """
-Project: Engineering Cost-Benefit Analysis Tool
+Project: Capital Asset DCF & Sensitivity Engine
 Author: Smyan Aggarwal
-Date: 2026-07-13
-Description: A simple utility to calculate ROI and assess financial feasibility 
-             for small-scale engineering projects. 
+Notes: Evaluates multi-year project ROI using NPV and IRR, 
+       and outputs a clean cash flow trajectory chart for the portfolio deck.
 """
 
-def calculate_project_roi(initial_capex, annual_savings, project_lifespan):
-    """
-    Calculates the Return on Investment (ROI) percentage.
-    
-    Args:
-        initial_capex (float): The initial capital expenditure (investment).
-        annual_savings (float): Yearly operational savings from the improvement.
-        project_lifespan (int): Expected duration of the project in years.
+import matplotlib.pyplot as plt
+import numpy as np
+import numpy_financial as npf
+
+class AssetEvaluator:
+    def __init__(self, initial_capex: float, cash_flows: list, discount_rate: float):
+        self.initial_capex = initial_capex
+        # year 0 is always our initial cash outlay (needs to be negative)
+        self.cash_flows = [-initial_capex] + cash_flows
+        self.discount_rate = discount_rate
+
+    def get_npv(self) -> float:
+        # sum up the present value of each year's cash flow
+        npv = sum(cf / ((1 + self.discount_rate) ** i) for i, cf in enumerate(self.cash_flows))
+        return npv
+
+    def get_irr(self) -> float:
+        try:
+            val = npf.irr(self.cash_flows)
+            return float(val) if not np.isnan(val) else 0.0
+        except Exception:
+            return 0.0
+
+    def plot_cash_flow(self, filename: str = "dcf_chart.png") -> None:
+        years = list(range(len(self.cash_flows)))
+        cum_cf = np.cumsum(self.cash_flows)
+
+        plt.figure(figsize=(7, 4))
+        plt.plot(years, cum_cf, marker='o', color='#2b5c8f', linewidth=2, label='Cumulative CF')
+        plt.axhline(0, color='crimson', linestyle='--', linewidth=1, label='Break-Even (NPV=0)')
         
-    Returns:
-        float: ROI percentage.
-    """
-    if initial_capex <= 0:
-        return 0.0
-    
-    total_returns = annual_savings * project_lifespan
-    roi = ((total_returns - initial_cost) / initial_cost) * 100
-    return roi
+        plt.title('Cumulative Cash Flow & Break-Even Horizon', fontsize=10, fontweight='bold')
+        plt.xlabel('Timeline (Years)', fontsize=9)
+        plt.ylabel('Net Position ($)', fontsize=9)
+        plt.grid(True, linestyle=':', alpha=0.5)
+        plt.legend(loc='upper left', fontsize=8)
+        plt.tight_layout()
+        
+        plt.savefig(filename, dpi=300)
+        plt.close()
 
 def main():
-    print("--- Engineering Project Feasibility Evaluator ---")
+    print("Running Capital Asset Evaluation Model...")
     
-    # Using a try-except block to handle user input errors gracefully.
-    # Good practice for keeping the program from crashing.
-    try:
-        # Renaming variables to 'capex' (Capital Expenditure) to sound 
-        # more like a professional engineering/business context.
-        capex = float(input("Enter initial capital expenditure ($): "))
-        annual_savings = float(input("Enter expected annual savings ($): "))
-        lifespan = int(input("Enter projected project lifespan (years): "))
-        
-        # Calling the calculation function
-        roi_percentage = calculate_project_roi(capex, annual_savings, lifespan)
-        
-        # Calculate net profit for a more complete business view
-        net_profit = (annual_savings * lifespan) - capex
-        
-        print("\n--- Summary Analysis ---")
-        print(f"Total Projected Savings: ${ (annual_savings * lifespan):,.2f}")
-        print(f"Net Project Profit:      ${net_profit:,.2f}")
-        print(f"Return on Investment:     {roi_percentage:.2f}%")
-        
-        # Threshold logic: Often used in engineering management to decide 
-        # if a project is worth the risk.
-        if roi_percentage >= 20.0:
-            print("Status: Viable - Exceeds 20% ROI threshold.")
-        else:
-            print("Status: Caution - ROI below target. Review variable costs.")
-            
-    except ValueError:
-        print("Input Error: Please ensure you enter valid numerical data.")
+    # sample cash flows for a multi-phase infrastructure/engineering project
+    capex = 250000.0
+    cf_stream = [40000.0, 65000.0, 90000.0, 110000.0, 120000.0]
+    hurdle = 0.095
+    
+    evaluator = AssetEvaluator(capex, cf_stream, hurdle)
+    
+    npv = evaluator.get_npv()
+    irr = evaluator.get_irr()
+    
+    print(f"\n--- Results ---")
+    print(f"NPV: ${npv:,.2f}")
+    print(f"IRR: {irr * 100:.2f}%")
+    
+    if npv > 0 and irr > hurdle:
+        print("Status: Viable investment profile.")
+    else:
+        print("Status: Fails hurdle rate.")
+
+    evaluator.plot_cash_flow()
+    print("Generated chart asset successfully.")
 
 if __name__ == "__main__":
     main()
