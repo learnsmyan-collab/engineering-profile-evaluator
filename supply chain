@@ -24,10 +24,10 @@ def main():
     # Representing a small warehouse using a dictionary
     # In a real system, this might be a CSV file or an SQL database.
     warehouse_stock = {
-        "Steel_Beams": 50,
-        "Bolts_Pack": 10,
-        "Circuit_Boards": 5,
-        "Hydraulic_Fluid": 100
+        "Steel_Beams": 15,
+        "Bolts_Pack": 15,
+        "Circuit_Boards": 15,
+        "Hydraulic_Fluid": 15
     }
     
     reorder_threshold = 100
