@@ -18,7 +18,7 @@ def calculate_project_roi(initial_capex, annual_savings, project_lifespan):
     Returns:
         float: ROI percentage.
     """
-    if initial_cost <= 0:
+    if initial_capex <= 0:
         return 0.0
     
     total_returns = annual_savings * project_lifespan
