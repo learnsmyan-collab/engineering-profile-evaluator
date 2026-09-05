@@ -2,7 +2,7 @@
 Project: Capital Asset DCF & Sensitivity Engine
 Author: Smyan Aggarwal
 Notes: Evaluates multi-year project ROI using NPV and IRR, 
-       and outputs a clean cash flow trajectory chart for the portfolio deck.
+       and models discount rate sensitivity for risk profiling.
 """
 
 import matplotlib.pyplot as plt
@@ -12,44 +12,69 @@ import numpy_financial as npf
 class AssetEvaluator:
     def __init__(self, initial_capex: float, cash_flows: list, discount_rate: float):
         self.initial_capex = initial_capex
-        # year 0 is always our initial cash outlay (needs to be negative)
+        # year 0 is our initial cash outlay (must be negative)
         self.cash_flows = [-initial_capex] + cash_flows
         self.discount_rate = discount_rate
 
-    def get_npv(self) -> float:
-        # sum up the present value of each year's cash flow
-        npv = sum(cf / ((1 + self.discount_rate) ** i) for i, cf in enumerate(self.cash_flows))
+    def get_npv(self, custom_rate: float = None) -> float:
+        rate = custom_rate if custom_rate is not None else self.discount_rate
+        npv = sum(cf / ((1 + rate) ** i) for i, cf in enumerate(self.cash_flows))
         return npv
 
     def get_irr(self) -> float:
         try:
             val = npf.irr(self.cash_flows)
             return float(val) if not np.isnan(val) else 0.0
-        except Exception:
+        except Exception as e:
+            print(f"warning: IRR calculation failed ({e})")
             return 0.0
 
-    def plot_cash_flow(self, filename: str = "dcf_chart.png") -> None:
+    def run_sensitivity(self, rate_range = None) -> dict:
+        # evaluate npv across a spread of discount rates to test risk exposure
+        if rate_range is None:
+            rate_range = np.linspace(0.04, 0.16, 25)
+        
+        sensitivity_results = {rate: self.get_npv(rate) for rate in rate_range}
+        return sensitivity_results
+
+    def plot_charts(self, filename_prefix: str = "asset_analysis") -> None:
+        rates = np.linspace(0.04, 0.16, 25)
+        npvs = [self.get_npv(r) for r in rates]
+
         years = list(range(len(self.cash_flows)))
         cum_cf = np.cumsum(self.cash_flows)
 
-        plt.figure(figsize=(7, 4))
-        plt.plot(years, cum_cf, marker='o', color='#2b5c8f', linewidth=2, label='Cumulative CF')
-        plt.axhline(0, color='crimson', linestyle='--', linewidth=1, label='Break-Even (NPV=0)')
-        
-        plt.title('Cumulative Cash Flow & Break-Even Horizon', fontsize=10, fontweight='bold')
-        plt.xlabel('Timeline (Years)', fontsize=9)
-        plt.ylabel('Net Position ($)', fontsize=9)
-        plt.grid(True, linestyle=':', alpha=0.5)
-        plt.legend(loc='upper left', fontsize=8)
+        # create a dual-panel figure for cash flow trajectory & risk sensitivity
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.5))
+
+        # panel 1: cumulative cash flow break-even
+        ax1.plot(years, cum_cf, marker='o', color='#2b5c8f', linewidth=2, label='Cumulative CF')
+        ax1.axhline(0, color='crimson', linestyle='--', linewidth=1, label='Break-Even (NPV=0)')
+        ax1.set_title('Cumulative Cash Flow & Payback', fontsize=10, fontweight='bold')
+        ax1.set_xlabel('Timeline (Years)', fontsize=9)
+        ax1.set_ylabel('Net Position ($)', fontsize=9)
+        ax1.grid(True, linestyle=':', alpha=0.5)
+        ax1.legend(loc='upper left', fontsize=8)
+
+        # panel 2: discount rate sensitivity curve
+        ax2.plot(rates * 100, npvs, color='#2ca02c', linewidth=2, label='NPV Curve')
+        ax2.axhline(0, color='crimson', linestyle='--', linewidth=1, label='Zero NPV Threshold')
+        ax2.axvline(self.discount_rate * 100, color='#f0ad4e', linestyle=':', linewidth=1.5, label=f'Hurdle Rate ({self.discount_rate*100}%)')
+        ax2.set_title('Discount Rate Sensitivity (NPV Risk)', fontsize=10, fontweight='bold')
+        ax2.set_xlabel('Discount Rate (%)', fontsize=9)
+        ax2.set_ylabel('Net Present Value ($)', fontsize=9)
+        ax2.grid(True, linestyle=':', alpha=0.5)
+        ax2.legend(loc='upper right', fontsize=8)
+
         plt.tight_layout()
-        
-        plt.savefig(filename, dpi=300)
+        output_file = f"{filename_prefix}_dashboard.png"
+        plt.savefig(output_file, dpi=300)
         plt.close()
+        print(f"successfully exported visual dashboard to '{output_file}'.")
 
 def main():
-    print("Running Capital Asset Evaluation Model...")
+    print("running capital asset evaluation & sensitivity engine...")
     
-    # sample cash flows for a multi-phase infrastructure/engineering project
     capex = 250000.0
     cf_stream = [40000.0, 65000.0, 90000.0, 110000.0, 120000.0]
     hurdle = 0.095
@@ -59,17 +84,17 @@ def main():
     npv = evaluator.get_npv()
     irr = evaluator.get_irr()
     
-    print(f"\n--- Results ---")
-    print(f"NPV: ${npv:,.2f}")
-    print(f"IRR: {irr * 100:.2f}%")
+    print(f"\n--- baseline results ---")
+    print(f"npv at {hurdle*100}% hurdle: ${npv:,.2f}")
+    print(f"irr: {irr * 100:.2f}%")
     
     if npv > 0 and irr > hurdle:
-        print("Status: Viable investment profile.")
+        print("status: viable investment profile.")
     else:
-        print("Status: Fails hurdle rate.")
+        print("status: fails hurdle rate requirements.")
 
-    evaluator.plot_cash_flow()
-    print("Generated chart asset successfully.")
+    # triggers the graphing function and drops the image in your folder
+    evaluator.plot_charts()
 
 if __name__ == "__main__":
     main()
