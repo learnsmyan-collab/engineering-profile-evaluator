@@ -1,24 +1,34 @@
-# Engineering Profile Evaluator
+# financial engineering & operations analytics
 
-Hi there! Welcome to the Engineering Profile Evaluator. The idea of this project is to establish a framework within which engineering profiles can be assessed, a cost-benefit model calculated, and supply chains evaluated for their operational efficacy and economic viability. 
+python tools for running capital asset dcf models, discount rate risk curves, and automated warehouse inventory safety stock audits.
 
+## visual outputs
 
-If you're looking to understand how to perform a technical assessment on the grounds of both the bottom-line performance and the logistics of the process, then you've come to the right place.
+### capital asset dcf & rate sensitivity dashboard
+![Asset Analysis Dashboard](asset_analysis_dashboard.png)
 
----
+### warehouse inventory vs. safety threshold auditor
+![Inventory Status](inventory_status.png)
 
-## What's Inside?
+## what's inside
+- dcf_engine.py: object-oriented evaluation of multi-year project roi using npv and irr, complete with a break-even timeline and discount rate sensitivity curve.
+- inventory_auditor.py: parses stock counts against safety limits, catches items hitting low-stock thresholds, and generates a conditional color-coded status chart.
 
-The repository is broken down into two main folders:
+## governing equations & math behind
 
-* **`cost-benefit/`**: This is where the financial side lives—focusing on ROI, project value, and figuring out if the numbers make sense.
-* **`supply chain/`**: This part covers the logistics, operational flow, and how everything moves from point A to point B.
+### 1. discounted cash flow (dcf) & net present value (npv)
+sums the present values of future cash flows against initial capital expenditure:
+- NPV = sum(CF_t / (1 + r)^t) - Initial_Capex`
+- where CF_t = cash flow at year t, and r = discount rate / hurdle rate.
 
----
+### 2. internal rate of return (irr)
+solves for the precise discount rate where net present value equals zero:
+- 0 = sum(CF_t / (1 + IRR)^t) - Initial_Capex
 
-## Quick Start
+### 3. inventory safety stock threshold
+monitors unit positions on hand against minimum limits to automate restocking alerts:
+- Shortage_Flag = Units_On_Hand <= Safety_Threshold
 
-Want to check it out locally? Just clone the repo:
-
+## quick setup
 ```bash
-git clone [https://github.com/learnsmyan-collab/engineering-profile-evaluator.git](https://github.com/learnsmyan-collab/engineering-profile-evaluator.git)
+pip install numpy numpy-financial pandas matplotlib
