@@ -5,10 +5,10 @@ python tools for running capital asset dcf models, discount rate risk curves, an
 ## visual outputs
 
 ### capital asset dcf & rate sensitivity dashboard
-![Asset Analysis Dashboard](asset_analysis_dashboard.png)
+![Asset Analysis Dashboard](outputs/asset_analysis_dashboard.png)
 
 ### warehouse inventory vs. safety threshold auditor
-![Inventory Status](inventory_status.png)
+![Inventory Status](outputs/inventory_status.png)
 
 ## what's inside
 - dcf_engine.py: object-oriented evaluation of multi-year project roi using npv and irr, complete with a break-even timeline and discount rate sensitivity curve.
