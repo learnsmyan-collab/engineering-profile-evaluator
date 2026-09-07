@@ -1,34 +1,52 @@
-# financial engineering & operations analytics
+# 📊 Financial & Operational System Dashboards
 
-python tools for running capital asset dcf models, discount rate risk curves, and automated warehouse inventory safety stock audits.
+A dual-purpose analytics toolkit featuring a **Capital Asset DCF & Rate Sensitivity Engine** for investment appraisal and a **Warehouse Inventory Safety Auditor** for automated supply chain risk mitigation.
 
-## visual outputs
+---
 
-### capital asset dcf & rate sensitivity dashboard
+## 🚀 Visual Outputs & System Dashboards
+
+### 1. Capital Asset DCF & Rate Sensitivity Dashboard (`dcf_engine.py`)
+Evaluates a $\$250,000$ initial capital expenditure stream against multi-year returns, plotting cumulative cash flow payback alongside discount rate risk curves.
 ![Asset Analysis Dashboard](outputs/asset_analysis_dashboard.png)
 
-### warehouse inventory vs. safety threshold auditor
+### 2. Warehouse Inventory vs. Safety Threshold Auditor (`inventory_auditor.py`)
+Parses stock positions against minimum safety thresholds, automatically isolating critical shortages (e.g., Bolts and Circuit Boards) with color-coded conditional logic.
 ![Inventory Status](outputs/inventory_status.png)
 
-## what's inside
-- dcf_engine.py: object-oriented evaluation of multi-year project roi using npv and irr, complete with a break-even timeline and discount rate sensitivity curve.
-- inventory_auditor.py: parses stock counts against safety limits, catches items hitting low-stock thresholds, and generates a conditional color-coded status chart.
+---
 
-## governing equations & math behind
+## 📂 Repository Layout & Architecture
 
-### 1. discounted cash flow (dcf) & net present value (npv)
-sums the present values of future cash flows against initial capital expenditure:
-- NPV = sum(CF_t / (1 + r)^t) - Initial_Capex`
-- where CF_t = cash flow at year t, and r = discount rate / hurdle rate.
+* **`dcf_engine.py`**: Object-oriented class (`AssetEvaluator`) implementing Net Present Value (NPV), Internal Rate of Return (IRR) via `numpy-financial`, and automated risk sensitivity profiling across varying discount rate arrays.
+* **`inventory_auditor.py`**: Modular inventory management class (`StockAuditor`) that filters stock counts below safety thresholds and exports production-ready status charts.
 
-### 2. internal rate of return (irr)
-solves for the precise discount rate where net present value equals zero:
-- 0 = sum(CF_t / (1 + IRR)^t) - Initial_Capex
+---
 
-### 3. inventory safety stock threshold
-monitors unit positions on hand against minimum limits to automate restocking alerts:
-- Shortage_Flag = Units_On_Hand <= Safety_Threshold
+## 📐 Mathematical Foundations & Governing Equations
 
-## quick setup
-```bash
-pip install numpy numpy-financial pandas matplotlib
+### 1. Discounted Cash Flow (DCF) & Net Present Value (NPV)
+Sums the present value of future cash inflows against initial capital expenditure:
+
+$$\text{NPV} = \sum_{t=0}^{n} \frac{\text{CF}_t}{(1 + r)^t} - \text{Initial Capex}$$
+
+*Where $\text{CF}_t$ = cash flow at year $t$, and $r$ = hurdle discount rate.*
+
+### 2. Internal Rate of Return (IRR)
+Computes the annualized effective compound return rate by locating the root where NPV equals zero:
+
+$$0 = \sum_{t=0}^{n} \frac{\text{CF}_t}{(1 + \text{IRR})^t} - \text{Initial Capex}$$
+
+### 3. Inventory Safety Stock Threshold Logic
+Monitors current unit allocations on hand to trigger automated replenishment flags:
+
+$$\text{Shortage Flag} = \text{Units On Hand} \leq \text{Safety Threshold}$$
+
+---
+
+## 🛠️ Installation & Usage
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/your-username/financial-operational-dashboards.git](https://github.com/your-username/financial-operational-dashboards.git)
+   cd financial-operational-dashboards
